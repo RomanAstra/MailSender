@@ -1,0 +1,153 @@
+﻿<Window x:Class="MailSender.MainWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+ xmlns:local="clr-namespace:MailSender"
+ xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+ xmlns:TabSwitcher="clr-namespace:TabSwitcher;assembly=TabSwitcher"
+ xmlns:view="clr-namespace:MailSender.Views"
+ xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+ mc:Ignorable="d"
+ Height="450" Width="800" Name="MainWindowForm"
+ DataContext="{Binding Main, Source={StaticResource Locator}}">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="File">
+                <MenuItem Header="Exit" Command="{local:ApplicationCloseCommand}"/>
+            </MenuItem>
+        </Menu>
+        <TabSwitcher:TabSwitcherControl Back="TabSwitcherControl_OnBack"
+                                            Forward="TabSwitcherControl_OnForward"
+                                            DockPanel.Dock="Bottom"/>
+        <TabControl Name="MainTabControl">
+            <TabItem Header="Рассылка">
+                <DockPanel>
+                    <ToolBarTray DockPanel.Dock="Top">
+                        <ToolBarTray.Resources>
+                            <GeometryGroup x:Key="PluseGeometry">
+                                <EllipseGeometry RadiusX="8" RadiusY="8" Center="9,9"/>
+                                <PathGeometry Figures="m9,9 m0,-5 v10 m-5,-5 h10"/>
+                            </GeometryGroup>
+
+                            <GeometryGroup x:Key="MinusGeometry">
+                                <EllipseGeometry RadiusX="8" RadiusY="8" Center="9,9"/>
+                                <PathGeometry Figures="m9,9 m-5,0 h10"/>
+                            </GeometryGroup>
+
+                            <GeometryGroup x:Key="ComfirmGeometry">
+                                <EllipseGeometry RadiusX="8" RadiusY="8" Center="9,9"/>
+                                <PathGeometry Figures="m8,13 l-3,-3 m3,3 l5,-7"/>
+                            </GeometryGroup>
+
+                        </ToolBarTray.Resources>
+                        <ToolBar>
+                            <Label Content="Отправитель:"/>
+                            <ComboBox Name="cbSenderSelect" Width="150" 
+                                      ItemsSource="{x:Static local:Resources.SendersDictionary}"
+                                      SelectedItem="{Binding CurSenders}"
+                                      SelectedIndex="0">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Key}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button ToolTip="Добавить отправителя">
+                                <Path Width="18" Height="18" Stroke="Blue" 
+                                      StrokeThickness="2" 
+                                      Data="{StaticResource PluseGeometry}"/>
+                            </Button>
+                            <Button ToolTip="Редактировать отправителя">
+                                <Path Width="18" Height="18" Stroke="LightSkyBlue" 
+                                      StrokeThickness="2" 
+                                      Data="{StaticResource ComfirmGeometry}"/>
+                            </Button>
+                            <Button ToolTip="Удалить отправителя">
+                                <Path Width="18" Height="18" Stroke="Red" 
+                                      StrokeThickness="2" 
+                                      Data="{StaticResource MinusGeometry}"/>
+                            </Button>
+                        </ToolBar>
+                        <ToolBar>
+                            <Label>Планировщик:</Label>
+                            <Button Click="BtnClock_Click"  ToolTip="Перейти к рассылке">
+                                <Image Source="/src/clock.png" Height="15" Margin="2"/>
+                            </Button>
+                        </ToolBar>
+                        <ToolBar Band="1" >
+                            <Label>Сервер:</Label>
+                            <ComboBox Name="ServerSelector" Width="150" ItemsSource="{Binding SmtpServers}" 
+                                      SelectedValue="{Binding SelectedServer}" SelectedIndex="0">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type local:SmtpServerInfo}">
+                                        <TextBlock Text="{Binding Server}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button ToolTip="Добавить сервер">
+                                <Path Width="18" Height="18" Stroke="Blue" 
+                                      StrokeThickness="2" 
+                                      Data="{StaticResource PluseGeometry}"/>
+                            </Button>
+                            <Button ToolTip="Редактировать сервер">
+                                <Path Width="18" Height="18" Stroke="LightSkyBlue" 
+                                      StrokeThickness="2" 
+                                      Data="{StaticResource ComfirmGeometry}"/>
+                            </Button>
+                            <Button ToolTip="Удалить отправителя" 
+                                     Command="{Binding DeleteServerCommand}"
+                                     CommandParameter="{Binding SelectedValue, ElementName=ServerSelector}">
+                                <Path Width="18" Height="18" Stroke="Red" StrokeThickness="2" Data="{StaticResource MinusGeometry}"/>
+                            </Button>
+                        </ToolBar>
+                        <ToolBar Band="1">
+                            <Label>Список адресатов:</Label>
+                            <Button Name="AddAddressButton" ToolTip="Добавить адресата">
+                                <Path Width="18" Height="18" Stroke="Blue"
+                                      StrokeThickness="2" 
+                                      Data="{StaticResource PluseGeometry}"/>
+                            </Button>
+                            <Button ToolTip="Редактировать адресата">
+                                <Path Width="18" Height="18" Stroke="LightSkyBlue"
+                                      StrokeThickness="2"
+                                      Data="{StaticResource ComfirmGeometry}"/>
+                            </Button>
+                            <Button ToolTip="Удалить адресата">
+                                <Path Width="18" Height="18" Stroke="Red"
+                                      StrokeThickness="2" 
+                                      Data="{StaticResource MinusGeometry}"/>
+                            </Button>
+                        </ToolBar>
+                    </ToolBarTray>
+                    <view:SaveEmailView />
+                    <view:EmailInfo/>
+
+                </DockPanel>
+            </TabItem>
+            <TabItem Name="tabPlanner" Header="Планировщик">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="44.506"/>
+                        <ColumnDefinition Width="150.494"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="3" Grid.ColumnSpan="2">
+                        <Button Content="Добавить письмо" Command="{Binding BtnAddMail}"/>
+                        <ListView x:Name="lstvwMails" Height="100" ItemsSource="{Binding SendMails}"/>
+                        <Button Margin="0,3">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Height="15" Source="pack://application:/src/clock.png" Margin="0,0,4,0"/>
+                                <TextBlock Text="Запланировать"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Content="Отправить сейчас"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Редактор сообщений">
+                <RichTextBox/>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>

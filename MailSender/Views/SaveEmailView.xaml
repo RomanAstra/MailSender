@@ -1,0 +1,82 @@
+﻿<UserControl x:Class="MailSender.Views.SaveEmailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:rules="clr-namespace:MailSender.ValidationRules"
+             mc:Ignorable="d"
+             DataContext="{Binding Main, Source={StaticResource Locator}}"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <AdornerDecorator>
+        <Grid DataContext="{Binding CurrentEmail}">
+        <Grid.Resources>
+            <Style TargetType="TextBox">
+                <Setter Property="Validation.ErrorTemplate">
+                    <Setter.Value>
+                        <ControlTemplate>
+                            <DockPanel LastChildFill="True" ToolTip="{Binding
+ElementName=ValidationElement, Path=AdornedElement.(Validation.Errors)[0].ErrorContent}">
+                                <TextBlock DockPanel.Dock="Right" Text="*" FontWeight="Bold"
+                                           Foreground="Red"/>
+                                <Border BorderBrush="OrangeRed" BorderThickness="4">
+                                    <AdornedElementPlaceholder Name="ValidationElement"/>
+                                </Border>
+                            </DockPanel>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="Validation.HasError" Value="True">
+                        <Setter Property="Opacity" Value="0.3"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Column="0" Grid.Row="0" Text="id:"
+                   HorizontalAlignment="Right"/>
+        <TextBlock Grid.Column="0" Grid.Row="1" Text="Address:"
+                   HorizontalAlignment="Right"/>
+        <TextBlock Grid.Column="0" Grid.Row="2" Text="Name:"
+                   HorizontalAlignment="Right"/>
+        <TextBox Grid.Column="1" Grid.Row="0" Validation.Error="Validation_OnError">
+            <TextBox.Text>
+                <Binding Path="Id" NotifyOnValidationError="True" >
+                    <Binding.ValidationRules>
+                        <rules:DatabaseID/>
+                        <ExceptionValidationRule/>
+                    </Binding.ValidationRules>
+                </Binding>
+            </TextBox.Text>
+        </TextBox>
+        <TextBox Grid.Column="1" Grid.Row="1">
+            <TextBox.Text>
+                <Binding Path="Email" NotifyOnValidationError="True" UpdateSourceTrigger="PropertyChanged"
+                         ValidatesOnDataErrors="True" >
+                    <Binding.ValidationRules>
+                        <rules:EmailAddress/>
+                        <ExceptionValidationRule/>
+                    </Binding.ValidationRules>
+                </Binding>
+            </TextBox.Text>
+        </TextBox>
+        <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding Name}"/>
+        <Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"
+                Content="Сохранить"
+                Command="{Binding DataContext.SaveEmailCommand,
+RelativeSource={RelativeSource AncestorType=UserControl}}"
+                CommandParameter="{Binding}"
+                HorizontalAlignment="Center" Padding="30,0"/>
+    </Grid>
+    </AdornerDecorator>
+</UserControl>
